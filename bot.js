@@ -1,84 +1,4 @@
 /*
-//Games
-const XO = require('./tiktoktoe.js');
-var XoGame = new XO.TikTokToe();
-const SeaBattle = require('./seaBattle.js');
-var SeaGame = new SeaBattle.SeaBattle();
-var games = [];
-
-//Start Bot
-bot.on('ready', () => {
-    console.log(`Logged in as ${bot.user.tag}!`);
-});
-
-//Read messages
-bot.on('message', async message => {
-    //console.log(message.author.username + " said: " + message.content);
-    const prefix = "+";
-    if (!message.guild) return;
-    if (message.content.startsWith(prefix)){
-        const args = message.content.slice(prefix.length).trim().split(/ +/g);
-        const cmd = args.shift().toLowerCase();
-        switch(cmd){
-            case "ping":
-                const msg = await message.channel.send("🏓 Pinging....");
-                const delTime = 5000;
-                msg.edit("🏓 Pong!\nLatency is " + Math.floor(msg.createdAt - message.createdAt) + "ms\nAPI Latency is " + Math.round(bot.ping) + "ms");
-                if (message.deletable) {
-                    console.log("t-" + delTime);
-                    message.delete(delTime, "Timeout");
-                    msg.delete(delTime, "Timeout");
-                }
-                break;
-            case "help":
-                Help(message);
-                break;
-            case "lol":
-                lol.loadChamps(message, args);
-                break;
-            case 'xo':
-                XoGame.startTikTokToe(message);
-                break;
-            case '4':
-                games.push(new FourInRow(message));
-                break;
-            case 'say':
-                message.channel.send(args.join(" "));
-                break;
-        }
-    }
-    else{
-        if (message.content.replace(" ", "").toLowerCase() == "pog?"){
-            // IF BIG BOY WITH PERMISSIONS POG! ELSE NOT POG!
-            console.log("Pog!");
-        }
-    }
-});
-
-//Read Reactions
-bot.on("messageReactionAdd", async (reaction, user) => {
-    if (reaction.partial){
-		try {
-            await reaction.fetch();
-		} catch (error) {
-			console.log('Something went wrong when fetching the message: ', error);
-			return;
-		}
-    }
-    //Destroy every finished game
-    for(var i = 0; i < games.length; i++) {
-        if (games[i].state > 1) {
-            games.splice(i);
-            i--;
-        }
-    }
-    games.forEach(game => {
-        if (game.gameMessage.id == reaction.message.id)
-        game.React(reaction, user);
-    });
-    XoGame.readReaction(reaction, user);
-});
-
 
 //Show all commands
 function Help(message) {
@@ -118,18 +38,15 @@ Object.keys(modules).forEach((name, count) => {
 // Show available commands count
 // CommandCount is a function because the commands can be added and removed at runtime
 const commandsCount = () => { return Command.getAll().length }
-console.log(`Loaded ${commandsCount()} ${commandsCount() > 1 ? 'commands' : 'command'}`)
+console.log(`Loaded ${commandsCount()} command${commandsCount() == 1 ? '' : 's'}`)
 const InputdsCount = () => { return Input.getAll().length }
-console.log(`Loaded ${InputdsCount()} ${InputdsCount() > 1 ? 'inputs' : 'input'}`)
+console.log(`Loaded ${InputdsCount()} input listener${InputdsCount() == 1 ? '' : 's'}`)
 
 client.on('message', async message => {
-    console.log(`${message.author.username} said '${message.content}'`)
     if (!message.guild) return // Checks if the message comes from a server
     const commands = Command.getAll()
     commands.forEach(command => {
-        console.log(command)
         if (message.content.startsWith(command.template)) {
-            console.log(`Executing command '${command.template}'...`)
             command.callback(message)
         }
     })
