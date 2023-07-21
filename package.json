@@ -1,17 +1,16 @@
 {
     "name": "pogersbot",
     "version": "1.0.0",
-    "description": "Video God",
+    "description": "Games God",
     "main": "bot.js",
-    "author": "The Holly Jesus",
+    "author": "Antonio Marques",
+    "type": "module",
     "scripts": {
-        "start": "node bot.js",
-        "dev": "nodemon bot.js"
+        "start": "node bot.js"
     },
     "dependencies": {
         "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
         "discord.js": "^12.2.0",
-        "nodemon": "^2.0.4",
-        "winston": "^3.2.1"
+        "dotenv": "^16.3.1"
     }
 }

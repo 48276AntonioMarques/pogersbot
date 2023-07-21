@@ -1,10 +1,4 @@
-const Discord = require('discord.js');
-var bot = new Discord.Client();
-const auth = require('./auth.json');
-const leagueOfLegends = require('./leagueOfLegends.js'); 
-var lol = new leagueOfLegends.LeagueOfLegends(leagueOfLegends.champs);
-const FourInRow = require('./fourInRow.js');
-
+/*
 //Games
 const XO = require('./tiktoktoe.js');
 var XoGame = new XO.TikTokToe();
@@ -16,9 +10,6 @@ var games = [];
 bot.on('ready', () => {
     console.log(`Logged in as ${bot.user.tag}!`);
 });
-
-//Login
-bot.login(auth.token);
 
 //Read messages
 bot.on('message', async message => {
@@ -97,4 +88,22 @@ function Help(message) {
         .setTitle("All available Commands:") //TODO: Make this fancy!!!
         .setDescription("+ping\n+help\n+lol ChampionName\n+xo tagyourpal\n+4 tagyourpal");
     message.channel.send(embed);
-}
+}*/
+
+import { Client } from 'discord.js'
+import dotenv from 'dotenv'
+
+// Load environment variables from .env files
+dotenv.config()
+
+// Load token from environment variables
+const token = process.env.DISCORD_TOKEN
+
+// Create a new client instance
+const client = new Client()
+
+// Import all available modules
+// TODO: Make interface for the modules
+
+// Login to Discord with your client's token
+client.login(token)
