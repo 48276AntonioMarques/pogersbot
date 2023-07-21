@@ -1,22 +1,35 @@
-module.exports = class Game {
-    state = 0; //State: 0 = waitng for p2 to accept game, 1 = playing, 2 = done, 3 = remove
-    player1;
-    player2;
-    playerTurn; // Player1 turn if true, Player2 turn if false
-    expireTime;
-    gameMessage;
+module.exports = class Game extends Module {
+    // TODO: Make the player count variable
+    // All games must share the same screen view!!!
+    // FourInRow, TicTacToe, Chess, Checkers, Monopoly, etc...
+
+    expireTime = 60000 // 1 minute
+
+    state = {
+        players: [],
+        onExpire: null,
+        message: null
+    }
+
     constructor(message) {
-        this.expireTime = new Date().getTime() + 60000;
-        this.Prompt(message);
+        this.resetExpireTime()
+        this.state.message = message
+    }
+
+    resetExpireTime() {
+        const timeoutID = this.state.onExpire
+        if (timeoutID !== null && timeoutID !== undefined && timeoutID > 0)
+            clearTimeout(this.state.onExpire)
+        this.state.onExpire = setTimeout(expire, expireTime)
     }
 
     async Prompt(message) {
-        this.player1 = message.author;
+        this.player1 = message.author
         if (message.content.length > 0 && message.content.includes("<@") && message.content.includes(">")){
-            this.player2 = message.content.substr(message.content.indexOf("<@") + 2, message.content.indexOf(">") - message.content.indexOf("<@") - 2);
-            this.gameMessage = await message.channel.send(" <@" + this.player1 + "> envited <@" + this.player2 + "> to play!");
-            this.gameMessage.react("✔");
-            this.gameMessage.react("❌");
+            this.player2 = message.content.substr(message.content.indexOf("<@") + 2, message.content.indexOf(">") - message.content.indexOf("<@") - 2)
+            this.gameMessage = await message.channel.send(" <@" + this.player1 + "> envited <@" + this.player2 + "> to play!")
+            this.gameMessage.react("✔")
+            this.gameMessage.react("❌")
         }
         else{
             this.gameMessage = await message.channel.send("Couldn't find <@" + this.player1 + "> in here!")
@@ -27,30 +40,30 @@ module.exports = class Game {
         if (this.state == 0 && this.player1 == user.id) {
             switch(reaction._emoji.name) {
                 case '✔':
-                    this.Accept();
+                    this.Accept()
                 break;
                 case '❌':
-                    this.Refuse();
+                    this.Refuse()
                 break;
                 default:
-                    console.log(reaction._emoji.name);
+                    console.log(reaction._emoji.name)
                 break;
             }
         }
         if (reaction._emoji.name == '💨' && (user == this.player1 || user == this.player2)){
             //Define wich player have surrender
-            this.playerTurn = user == this.player1 ? true : false;
-            this.state = 2;
-            return;
+            this.playerTurn = user == this.player1 ? true : false
+            this.state = 2
+            return
         }
         if (this.state == 1) {
-            this.Update(reaction, user);
+            this.Update(reaction, user)
         }
     }
 
     Refuse() {
-        this.gameMessage.edit("<@" + this.player2 + "> refused play with you!");
-        this.RemoveReactions();
+        this.gameMessage.edit("<@" + this.player2 + "> refused play with you!")
+        this.RemoveReactions()
         //TODO: Delete the message after a while
         //this.gameMessage.delete(3000);
         this.state = 3;
@@ -60,11 +73,11 @@ module.exports = class Game {
         this.gameMessage.edit("Loading...")
             .then(() => this.RemoveReactions())
             .then(() => this.Start())
-            .then(() => this.state = 1);
+            .then(() => this.state = 1)
     }
 
     RemoveReactions() {
-        this.gameMessage.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error));
+        this.gameMessage.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error))
     }
 
     Start() {}
@@ -72,15 +85,15 @@ module.exports = class Game {
 
     LoadReactions(reactions) {
         reactions.split(" ").forEach(reaction => {
-            this.gameMessage.react(reaction);
-        });
-        this.gameMessage.react("💨");
+            this.gameMessage.react(reaction)
+        })
+        this.gameMessage.react("💨")
     }
 
     GetReactionText(reaction) {
         if (reaction[0] >= 0) {
-            return reaction[0];
+            return reaction[0]
         }
-        return "";
+        return ""
     }
 }

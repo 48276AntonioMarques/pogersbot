@@ -91,6 +91,8 @@ function Help(message) {
 }*/
 
 import { Client } from 'discord.js'
+import Command from './Command.js'
+import Input from './Input.js'
 import dotenv from 'dotenv'
 
 // Load environment variables from .env files
@@ -103,7 +105,60 @@ const token = process.env.DISCORD_TOKEN
 const client = new Client()
 
 // Import all available modules
-// TODO: Make interface for the modules
+import * as modules from './modules.js'
+
+// Load all modules
+const modulesCount = Object.keys(modules).length
+Object.keys(modules).forEach((name, count) => {
+    const module = modules[name]
+    console.log(`Loading module: ${name} (${count}/${modulesCount})...`)
+    module.onLoad()
+})
+
+// Show available commands count
+// CommandCount is a function because the commands can be added and removed at runtime
+const commandsCount = () => { return Command.getAll().length }
+console.log(`Loaded ${commandsCount()} ${commandsCount() > 1 ? 'commands' : 'command'}`)
+const InputdsCount = () => { return Input.getAll().length }
+console.log(`Loaded ${InputdsCount()} ${InputdsCount() > 1 ? 'inputs' : 'input'}`)
+
+client.on('message', async message => {
+    console.log(`${message.author.username} said '${message.content}'`)
+    if (!message.guild) return // Checks if the message comes from a server
+    const commands = Command.getAll()
+    commands.forEach(command => {
+        console.log(command)
+        if (message.content.startsWith(command.template)) {
+            console.log(`Executing command '${command.template}'...`)
+            command.callback(message)
+        }
+    })
+})
+
+client.on("messageReactionAdd", async (reaction, user) => {
+    if (reaction.partial){
+		try {
+            await reaction.fetch()
+		} catch (error) {
+			console.log('[Error] Fetching message failed caused by: ', error)
+			return
+		}
+    }
+    // Gets input everytime since inputs can be added and removed at runtime
+    Input.getAll().forEach(input => {
+        if (
+            input.message.id == reaction.message.id &&
+            input.message.channel.id == reaction.message.channel.id &&
+            input.emoji == reaction.emoji.name
+        ) {
+            input.callback(reaction, user)
+        }
+    })
+})
+
+client.on('ready', () => {
+    console.log(`Connected with API as ${client.user.tag}`)
+})
 
 // Login to Discord with your client's token
 client.login(token)

@@ -1,9 +1,6 @@
-module.exports = class Module {
+export default class Module {
     inputs = []
-    addInput(emoji) { }
-    removeInput(emoji) { }
-    // input detection will be made by an input handling array
+    static onLoad() { }
     onStart() { }
     onUpdate() { }
-    addCommand(command) { }
 }

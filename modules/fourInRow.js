@@ -1,4 +1,4 @@
-const Game = require('./game.js');
+const Game = require('../game.js');
 module.exports = class FourInRow extends Game {
     board = [];
     Start() {
