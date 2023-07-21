@@ -31,7 +31,7 @@ import * as modules from './modules.js'
 const modulesCount = Object.keys(modules).length
 Object.keys(modules).forEach((name, count) => {
     const module = modules[name]
-    console.log(`Loading module: ${name} (${count}/${modulesCount})...`)
+    console.log(`Loading module: (${count + 1}/${modulesCount}) ${name}...`)
     module.onLoad()
 })
 
@@ -46,8 +46,19 @@ client.on('message', async message => {
     if (!message.guild) return // Checks if the message comes from a server
     const commands = Command.getAll()
     commands.forEach(command => {
-        if (message.content.startsWith(command.template)) {
-            command.callback(message)
+        const template = command.template.split(/ +/g)
+        const args = message.content.trim().split(/ +/g)
+        let params = []
+        const match = args.every((arg, index) => {
+            const isParameter = template[index].startsWith('[') && template[index].endsWith(']')
+            if (isParameter) {
+                params.push(arg)
+                return true
+            }
+            return arg == template[index]
+        })
+        if (match) {
+            command.callback(message, params)
         }
     })
 })

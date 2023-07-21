@@ -1,84 +1,56 @@
-Discord = require('discord.js');
-https = require('https');
-url = require("url");
+import { MessageEmbed } from 'discord.js'
+import fetch from 'node-fetch'
+import Module from '../module.js'
+import Command from '../Command.js'
 
-class LeagueOfLegends {
-    constructor(){
-        this.getChamps();
-    }
-
-    async loadChamps(message, args) {
-        if (args.length < 1) {
-            message.channel.send("No champion provided!");
-            return;
-        }
-        const msg2 = await message.channel.send("Searching by " + args[0] + "...");
-        var directSearch = "https://u.gg/lol/champions/" + args[0] + "/build";
-        if (this.checkUrl(directSearch)){
-            msg2.edit("https://u.gg/lol/champions/" + args[0] + "/build");
-        }
-        else{
-            var results = "";
-            for (var y = 0; y < this.champs.length; y++) {
-                if (this.champs[y].toLowerCase().includes(args[0].toLowerCase())){
-                    results += this.champs[y] + ",";
-                }
-            }
-            var array = results.split(",");
-            array.pop();
-            console.log(array);
-            switch (array.length){
-                case 1:
-                    msg2.edit("https://u.gg/lol/champions/" + array[0] + "/build");
-                    break;
+export default class LeagueOfLegends extends Module {
+    
+    static async onLoad() {
+        // TODO: Get game version from https://ddragon.leagueoflegends.com/api/versions.json
+        const version = (await (await fetch('https://ddragon.leagueoflegends.com/api/versions.json')).json())[0]
+        console.log(`Loaded LeagueOfLegends module for version ${version}`)
+        Command.register(new Command('lol [ChampionName]', 'Search for a champion', async (origin, args) => {
+            const message = await origin.channel.send(`Searching for ${args[0]}...`)
+            const champions = Object.values((await LeagueOfLegends.getChamps(version)).data)
+            const matches = champions.filter(champion => { return champion.name.toLowerCase().includes(args[0].toLowerCase()) })
+            const roleColor = origin.guild.me.displayHexColor
+            switch (matches.length) {
                 case 0:
-                    msg2.edit("No result's found!");
-                    break;
+                    message.edit(
+                        new MessageEmbed()
+                            .setColor(roleColor)
+                            .setTitle('No champion found')
+                            .setDescription(`No match found for a champion starting with ${args[0]}`)
+                    )
+                break
+                case 1:
+                    message.edit(
+                        new MessageEmbed()
+                            .setColor(roleColor)
+                            .setTitle(matches[0].name)
+                            .setDescription(`https://u.gg/lol/champions/${args[0]}/build`)
+                    )
+                    break
                 default:
-                    var n = 20;
-                    var description = "";
-                    var i;
-                    for (i = 0; i < array.length && i < n; i++){
-                        description += array[i] + ">  https://u.gg/lol/champions/" + array[i] + "/build\n";
-                    }
-                    if (n > i) n = i;
-                    const roleColor = message.guild.me.displayHexColor;
-                    const embed = new Discord.MessageEmbed()
-                        .setColor(roleColor)
-                        .setDescription(description);
-                        msg2.edit("First " + n + " champions:");
-                    msg2.edit(embed);
-                    break;
+                    const firstMatches = matches.slice(0, 10)
+                    message.edit(
+                        new MessageEmbed()
+                            .setColor(roleColor)
+                            .setTitle(`Found ${matches.length} champions`)
+                            .setDescription(
+                                firstMatches.map(match => {
+                                    return `${match.name} - https://u.gg/lol/champions/${match.name.replace(" ", "_")}/build`
+                                }).join('\n')
+                            )
+                    )
+                    break
             }
-        }
+        }))
     }
 
-    checkUrl(link) {
-        https.get(link, (resp) => {
-        let data = '';
-        resp.on('data', (chunk) => {
-            data += chunk;
-        });
-        resp.on('end', () => {
-            return true;
-        });
-        }).on("error", (err) => {
-            return false;
-        });
-    }
-    async getChamps () {
-        https.get('https://ddragon.leagueoflegends.com/cdn/10.10.3216176/data/en_US/champion.json', (resp) => {
-        let data = '';
-        resp.on('data', (chunk) => {
-            data += chunk;
-        });
-        resp.on('end', () => {
-            this.champs = Object.keys(JSON.parse(data).data);
-        });
-        }).on("error", (err) => {
-            console.log("Error: " + err.message);
-        });
+    static async getChamps (version) {
+        const response = await fetch(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion.json`)
+        const json = await response.json()
+        return json
     }
 }
-
-exports.LeagueOfLegends = LeagueOfLegends;
