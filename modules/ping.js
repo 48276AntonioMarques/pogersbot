@@ -1,5 +1,5 @@
 import Module from '../module.js'
-import Command from '../Command.js'
+import Command from '../command.js'
 
 export default class Ping extends Module {
     inputs = []

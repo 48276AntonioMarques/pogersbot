@@ -1,18 +1,6 @@
-/*
-
-//Show all commands
-function Help(message) {
-    const roleColor = message.guild.me.displayHexColor;
-    const embed = new Discord.MessageEmbed()
-        .setColor(roleColor)
-        .setTitle("All available Commands:") //TODO: Make this fancy!!!
-        .setDescription("+ping\n+help\n+lol ChampionName\n+xo tagyourpal\n+4 tagyourpal");
-    message.channel.send(embed);
-}*/
-
 import { Client } from 'discord.js'
-import Command from './Command.js'
-import Input from './Input.js'
+import Command from './command.js'
+import Input from './input.js'
 import dotenv from 'dotenv'
 
 // Load environment variables from .env files

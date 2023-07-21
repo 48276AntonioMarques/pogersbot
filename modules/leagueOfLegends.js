@@ -1,7 +1,7 @@
 import { MessageEmbed } from 'discord.js'
 import fetch from 'node-fetch'
 import Module from '../module.js'
-import Command from '../Command.js'
+import Command from '../command.js'
 
 export default class LeagueOfLegends extends Module {
     

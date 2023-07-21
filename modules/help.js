@@ -1,6 +1,6 @@
 import { MessageEmbed } from 'discord.js'
 import Module from '../module.js'
-import Command from '../Command.js'
+import Command from '../command.js'
 
 export default class Help extends Module {
     inputs = []
